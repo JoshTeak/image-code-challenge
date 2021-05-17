@@ -3,23 +3,17 @@ import React from 'react';
 class DashboardPage extends React.Component {
 	constructor(props) {
 		super(props)
-
-
+		
 		this.width = 256;
 	    this.height = 128;
-	    this.buffer = new Uint8ClampedArray(this.width * this.height * 4); // have enough bytes
+
 	    this.pixelCount = 0;
-
 	    this.colorCombo = 1;
-		this.firstComponent;
-    	this.secondComponent;
-    	this.thirdComponent;
 
-
-
+	    this.buffer = new Uint8ClampedArray(this.width * this.height * 4); // have enough bytes
 		this.image = new Image();
-    	this.CreateImage();
-    	
+
+    	this.CreateImage();	
 	}
 
 	CreateImage = () => {
@@ -39,11 +33,11 @@ class DashboardPage extends React.Component {
 		    		if(i % 2 == 0)
 					{	    		
 						for(let x = horizontalPixelOffSet; x < horizontalPixelOffSet + 32; x++) {
-					        this.Buffering(x, y, i);
+					        this.AssignPixel(x, y, i);
 					    }
 					} else {
 						for(let x = horizontalPixelOffSet + 31; x >= horizontalPixelOffSet; x--) {
-					        this.Buffering(x, y, i);
+					        this.AssignPixel(x, y, i);
 					    }
 					}
 				}
@@ -52,11 +46,11 @@ class DashboardPage extends React.Component {
 		    		if(i % 2 == 0)
 					{	    		
 						for(let x = horizontalPixelOffSet; x < horizontalPixelOffSet + 32; x++) {
-					        this.Buffering(x, y, i);
+					        this.AssignPixel(x, y, i);
 					    }
 					} else {
 						for(let x = horizontalPixelOffSet + 31; x >= horizontalPixelOffSet; x--) {
-					        this.Buffering(x, y, i);
+					        this.AssignPixel(x, y, i);
 					    }
 					}
 				}
@@ -87,77 +81,45 @@ class DashboardPage extends React.Component {
 		document.body.appendChild(this.image);
 	}
 
-	Buffering = (x, y, i) => {
+	AssignPixel = (x, y, i) => {
 		const pos = (y * this.width + x) * 4; // position in buffer based on x and y
 
-        this.firstComponent = ((this.pixelCount % 32) + 1) * 8;
-    	this.secondComponent = (Math.floor((this.pixelCount / 32)) + 1) * 8;
-    	this.thirdComponent = 255 - i * 8;
+		//first color component
+        let fC = ((this.pixelCount % 32) + 1) * 8;
+        //second color component
+    	let sC = (Math.floor((this.pixelCount / 32)) + 1) * 8;
+    	//third color component
+    	let tC = 255 - i * 8;
 
+    	//selecting color combo
     	switch(this.colorCombo) {
     		case 1:
-    			this.ColorComboOne(pos);
+    			this.Buffering(pos, fC, sC, tC);
     			break;
     		case 2:
-    			this.ColorComboTwo(pos);
+    			this.Buffering(pos, fC, tC, sC);
     			break;
     		case 3:
-    			this.ColorComboThree(pos);
+    			this.Buffering(pos, sC, fC, tC);
     			break;
     		case 4:
-    			this.ColorComboFour(pos);
+    			this.Buffering(pos, sC, tC, fC);
     			break;
     		case 5:
-    			this.ColorComboFive(pos);
+    			this.Buffering(pos, tC, fC, sC);
     			break;
     		case 6:
-    			this.ColorComboSix(pos);
+    			this.Buffering(pos, tC, sC, fC);
     			break;
     	}
-
         this.pixelCount++;
 	}
 
-	ColorComboOne = (position) => {
-		this.buffer[position  ] = this.firstComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.secondComponent;           	// some G value
-        this.buffer[position+2] = this.thirdComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
-	}
-
-	ColorComboTwo = (position) => {
-		this.buffer[position  ] = this.firstComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.thirdComponent;           	// some G value
-        this.buffer[position+2] = this.secondComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
-	}
-
-	ColorComboThree = (position) => {
-		this.buffer[position  ] = this.secondComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.firstComponent;           	// some G value
-        this.buffer[position+2] = this.thirdComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
-	}
-
-	ColorComboFour = (position) => {
-		this.buffer[position  ] = this.secondComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.thirdComponent;           	// some G value
-        this.buffer[position+2] = this.firstComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
-	}
-
-	ColorComboFive = (position) => {
-		this.buffer[position  ] = this.thirdComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.firstComponent;           	// some G value
-        this.buffer[position+2] = this.secondComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
-	}
-
-	ColorComboSix = (position) => {
-		this.buffer[position  ] = this.thirdComponent;           	// some R value [0, 255]
-        this.buffer[position+1] = this.secondComponent;           	// some G value
-        this.buffer[position+2] = this.firstComponent;           	// some B value
-        this.buffer[position+3] = 255;           					// set alpha channel
+	Buffering = (position, fC, sC, tC) => {
+		this.buffer[position  ] = fC;           	// some R value [0, 255]
+        this.buffer[position+1] = sC;           	// some G value
+        this.buffer[position+2] = tC;           	// some B value
+    	this.buffer[position+3] = 255;           		// set alpha channel
 	}
 
 	ChangeColoring = (e) => {
@@ -174,8 +136,9 @@ class DashboardPage extends React.Component {
 
 	render() {
 		return (
-			<div>
-			    <button className="button" onClick={this.ChangeColoring}>Change colouring</button>
+			<div className="button-container">
+				<h3 className="heading">Image Coding Challenge</h3>
+			    <button className="button" onClick={this.ChangeColoring}>Change Colouring</button>
 			</div>
 		)
 	}
